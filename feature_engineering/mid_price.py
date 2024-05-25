@@ -6,6 +6,8 @@
 # gr_ask_level: all ask level
 # group_t: trade data
 
+from math import trunc
+
 def cal_mid_price (gr_bid_level, gr_ask_level, group_t, mid_type=None):
     
     level = 5 
@@ -18,12 +20,13 @@ def cal_mid_price (gr_bid_level, gr_ask_level, group_t, mid_type=None):
         ask_top_price = gr_ask_level.iloc[0].price
         ask_top_level_qty = gr_ask_level.iloc[0].quantity
         mid_price = (bid_top_price + ask_top_price) * 0.5 #what is mid price?
-    
+
         if mid_type == 'wt':
             mid_price = ((gr_bid_level.head(level))['price'].mean() + (gr_ask_level.head(level))['price'].mean()) * 0.5
         elif mid_type == 'mkt':
             mid_price = ((bid_top_price*ask_top_level_qty) + (ask_top_price*bid_top_level_qty))/(bid_top_level_qty+ask_top_level_qty)
-            mid_price = truncate(mid_price, 1)
+            mid_price = trunc(mid_price) if (bid_top_level_qty+ask_top_level_qty) != 0 else (bid_top_price + ask_top_price) * 0.5
+            mid_price = float(mid_price)
         elif mid_type == 'vwap':
             mid_price = (group_t['total'].sum())/(group_t['units_traded'].sum())
             mid_price = truncate(mid_price, 1)
